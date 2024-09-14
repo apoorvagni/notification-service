@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/notifications")
@@ -40,6 +41,9 @@ public class NotificationController {
         } catch (IllegalArgumentException e) {
             logger.error("Failed to queue notifications: {}", e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Unexpected error while queueing notifications", e);
+            return ResponseEntity.internalServerError().body("An unexpected error occurred");
         }
     }
 
@@ -66,6 +70,9 @@ public class NotificationController {
         } catch (IllegalArgumentException e) {
             logger.error("Failed to retrieve stats: {}", e.getMessage());
             return ResponseEntity.badRequest().body(null);
+        } catch (Exception e) {
+            logger.error("Unexpected error while retrieving stats", e);
+            return ResponseEntity.internalServerError().body(null);
         }
     }
 }

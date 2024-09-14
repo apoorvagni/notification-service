@@ -34,6 +34,10 @@ public class NotificationService {
     private final ConcurrentLinkedQueue<Notification> notificationQueue = new ConcurrentLinkedQueue<>();
     private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
+    /*
+     * This method is used to send notifications to the notification queue.
+     * It is an asynchronous method that returns immediately after adding the notifications to the queue.
+     */
     @Async
     public void sendNotifications(List<NotificationRequest> requests) {
         logger.info("Received {} notification requests", requests.size());
@@ -51,6 +55,10 @@ public class NotificationService {
         processNotifications();
     }
 
+    /*
+     * This method processes notifications from the queue using an ExecutorService.
+     * The ExecutorService manages a thread pool, allowing for concurrent processing of notifications.
+     */
     private void processNotifications() {
         logger.info("Starting to process notifications");
         while (!notificationQueue.isEmpty()) {
@@ -62,11 +70,14 @@ public class NotificationService {
         logger.info("Finished processing notifications");
     }
 
+    /*
+     * This method processes a single notification and updates the statistics for the notification.
+     */
     private void processNotification(Notification notification) {
         logger.debug("Processing notification: {}", notification);
 
         NotificationStrategy strategy = NotificationFactory.getStrategy(notification.getType());
-        boolean success = strategy.send(notification.getContent());
+        boolean success = strategy.send(notification.getUserId(), notification.getContent());
 
         notification.setStatus(success ? NotificationStatus.SUCCESS : NotificationStatus.FAILURE);
         notificationRepository.save(notification);
@@ -74,6 +85,9 @@ public class NotificationService {
         updateStats(notification);
     }
 
+    /*
+     * This method retrieves statistics for a specified date range and optional notification type and status.
+     */
     public List<DailyStats> getStats(LocalDate startDate, LocalDate endDate, NotificationType type, NotificationStatus status) {
         logger.info("Fetching stats from {} to {}, type: {}, status: {}", startDate, endDate, type, status);
         if (startDate == null || endDate == null) {
@@ -91,6 +105,9 @@ public class NotificationService {
         return stats;
     }
 
+    /*
+     * This method updates the statistics for a notification.
+     */
     private void updateStats(Notification notification) {
         logger.debug("Updating stats for notification: {}", notification);
 

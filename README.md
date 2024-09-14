@@ -41,7 +41,7 @@ As per the Assignment, the following requirements have been implemented:
       - Note: In a production-grade application, a distributed message queue system like Apache Kafka would be more suitable due to its scalability, fault-tolerance, and ability to handle high throughput
     - Used a thread pool for parallel processing
 
-## HLD
+## High-Level Design Diagram
 <img src="hld.png" alt="High-Level Design Diagram" width="600" height="600">
 
 ## Implementation Details
@@ -102,18 +102,30 @@ As per the Assignment, the following requirements have been implemented:
 ## Assumptions
 
 - The system is designed to handle high volumes of notifications
-- Third-party APIs are assumed to be available for actual notification dispatch
+- User IDs are assumed to be valid and existing when sending notifications
 - The system operates in a single time zone (based on use of LocalDate and LocalDateTime)
+- There is no rate limiting or throttling implemented for notification sending
+- Notification failures are logged but not automatically retried
+- Daily stats are updated in real-time as notifications are processed
+
+
+## Scaling the System for High Traffic
+
+1. Horizontal Scaling: Use load balancers to distribute traffic across multiple application instances.
+2. Database Optimization: Implement MongoDB sharding and replica sets for better performance and data distribution.
+3. Message Queue: Replace in-memory queue with Apache Kafka for improved scalability and fault-tolerance.
+4. Caching: Introduce Redis to reduce database load and improve response times.
+5. Containerization: Use Docker and Kubernetes for efficient service management and scaling.
+
 
 ## Future Improvements: Kafka for Message Queue
 
 Upgrade the queueing system:
-- Replace the in-memory concurrent queue with a robust, distributed message queue system like Apache Kafka
+- Replace the in-memory concurrent queue with Apache Kafka
 - This would provide better scalability, fault-tolerance, and the ability to handle much higher volumes of notifications in a production environment
-- Kafka would also allow for easier scaling of notification processors across multiple instances or machines
 
 
-## Future Improvements: Error Handling
+## Future Improvements: Retry mechanism
 
 - Implement more comprehensive error handling and retry mechanism
 
@@ -138,11 +150,10 @@ This table would allow for:
 - User identification and contact information storage
 - Preferred notification method selection
 
-Integrating this user management system would involve:
-1. Setting up a MySQL database
-2. Extending the current service for user management
-3. Modifying the notification service to check user preferences before sending notifications
-4. Updating the API to allow for user management operations
+Why a MySQL database for user management?
+1. ACID Compliance: MySQL ensures data integrity through ACID properties, crucial for user data.
+2. Consistency: Immediate consistency is important for user data, which MySQL provides out of the box.
+3. Data Relationships: Managing relationships between data, like user roles and permissions.
 
 This enhancement would significantly improve the personalization and effectiveness of the notification service.
 

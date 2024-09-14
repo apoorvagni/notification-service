@@ -41,7 +41,8 @@ public class StatsRepositoryImpl implements StatsRepositoryCustom {
         Query query = new Query(Criteria.where("date").is(date)
                 .and("type").is(type)
                 .and("status").is(status));
-
+        
+        //The $inc operator is atomic, so multiple concurrent increments will be correctly applied without race conditions.
         Update update = new Update().inc("count", 1);
 
         mongoTemplate.upsert(query, update, DailyStats.class);
